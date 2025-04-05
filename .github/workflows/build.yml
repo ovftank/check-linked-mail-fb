@@ -41,7 +41,7 @@ jobs:
                   rsrc -manifest main.manifest -o rsrc.syso
 
             - name: Build
-              run: go build
+              run: go build -o main.exe
 
             - name: Release
               uses: softprops/action-gh-release@v2

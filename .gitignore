@@ -2,3 +2,5 @@
 go.sum
 rsrc.syso
 *.exe
+emails.txt
+proxies.txt
