@@ -1,0 +1,53 @@
+name: Build EXE
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+        branches: [main]
+    workflow_dispatch:
+
+permissions:
+    contents: write
+    discussions: write
+    actions: write
+
+jobs:
+    build:
+        if: |
+            github.ref == 'refs/heads/main' ||
+            github.event_name == 'workflow_dispatch' ||
+            github.actor == 'github-actions[bot]'
+        runs-on: windows-latest
+        steps:
+            - uses: actions/checkout@v4
+
+            - name: Configure Git
+              run: |
+                  git config user.name "GitHub Actions"
+                  git config user.email "actions@github.com"
+
+            - name: Set up Go
+              uses: actions/setup-go@v5
+              with:
+                  go-version-file: 'go.mod'
+                  cache: true
+
+            - name: Install dependencies
+              run: |
+                  go mod download
+                  go mod tidy
+                  go install github.com/akavel/rsrc@latest
+                  rsrc -manifest main.manifest -o rsrc.syso
+
+            - name: Build
+              run: go build
+
+            - name: Release
+              uses: softprops/action-gh-release@v2
+              with:
+                  files: main.exe
+                  generate_release_notes: true
+                  draft: false
+                  prerelease: false
+                  tag_name: v1.0.0
